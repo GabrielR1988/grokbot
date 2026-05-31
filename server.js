@@ -35,6 +35,7 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
+    console.log('Modelo solicitado:', req.body.model);
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -45,6 +46,7 @@ app.post('/api/chat', async (req, res) => {
     });
 
     const data = await response.json();
+    console.log('Respuesta xAI:', JSON.stringify(data));
 
     if (!response.ok) {
       return res.status(response.status).json(data);
