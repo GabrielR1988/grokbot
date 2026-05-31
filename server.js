@@ -7,6 +7,8 @@ const map = {
   'grok-4-20':          'model-grok-420',
   'grok-2-vision-1212': 'model-grok-vision'
 };
+const XAI_API_KEY = process.env.XAI_API_KEY;
+console.log('API Key cargada:', XAI_API_KEY ? 'SÍ ✓' : 'NO ✗');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
