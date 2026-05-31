@@ -58,7 +58,7 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 80px 16px 16px 16px;
+      padding: 16px;
     }
 
     .app {
@@ -483,14 +483,6 @@
 
     <!-- CONFIG PANEL -->
     <div class="panel active" id="panel-config">
-      <div class="field-group">
-        <div class="field-label"><i class="ti ti-key" aria-hidden="true"></i> API Key de xAI</div>
-        <input type="password" id="api-key" placeholder="xai-..." class="mono" oninput="updateStatus()">
-        <div class="api-key-notice" id="key-notice">
-          <i class="ti ti-info-circle" aria-hidden="true"></i>
-          Obtené tu API key en <strong>console.x.ai</strong>. Se usa solo en esta sesión.
-        </div>
-      </div>
 
       <div class="field-group">
         <div class="field-label"><i class="ti ti-cpu" aria-hidden="true"></i> Modelo</div>
@@ -679,28 +671,12 @@
 
   // --- STATUS ---
   function updateStatus() {
-    const key = document.getElementById('api-key').value.trim();
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
     const btn = document.getElementById('send-btn');
-    const notice = document.getElementById('key-notice');
-
-    if (key.startsWith('xai-') && key.length > 15) {
-      dot.style.background = '#1D9E75';
-      text.textContent = 'Conectado · ' + selectedModel;
-      btn.disabled = false;
-      notice.style.display = 'none';
-    } else if (key.length > 0) {
-      dot.style.background = '#E24B4A';
-      text.textContent = 'API key no válida (debe empezar con xai-)';
-      btn.disabled = true;
-      notice.style.display = 'flex';
-    } else {
-      dot.style.background = '#E24B4A';
-      text.textContent = 'Configurá tu API key para comenzar';
-      btn.disabled = true;
-      notice.style.display = 'flex';
-    }
+    dot.style.background = '#1D9E75';
+    text.textContent = 'Conectado · ' + selectedModel;
+    btn.disabled = false;
   }
 
   // --- BOT NAME ---
@@ -881,9 +857,6 @@
     const text = input.value.trim();
     if (!text || isTyping) return;
 
-    const apiKey = document.getElementById('api-key').value.trim();
-    if (!apiKey) return;
-
     input.value = '';
     autoResize(input);
     isTyping = true;
@@ -898,13 +871,10 @@
       const temperature = parseFloat(document.getElementById('temp-slider').value);
       const maxTokens = parseInt(document.getElementById('tokens-slider').value);
 
-      // Llama al proxy local en /api/chat en vez de xAI directo
+      // La API key la maneja el servidor vía variable de entorno XAI_API_KEY
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: selectedModel,
           messages: [
@@ -931,10 +901,7 @@
       addErrorMessage(`Error: ${err.message}`);
     } finally {
       isTyping = false;
-      const key = document.getElementById('api-key').value.trim();
-      if (key.startsWith('xai-') && key.length > 15) {
-        document.getElementById('send-btn').disabled = false;
-      }
+      document.getElementById('send-btn').disabled = false;
     }
   }
 
