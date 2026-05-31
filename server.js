@@ -1,26 +1,22 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
-const map = {
-  'grok-4-1-fast':      'model-grok-41fast',
-  'grok-4-3':           'model-grok-43',
-  'grok-4-20':          'model-grok-420',
-  'grok-2-vision-1212': 'model-grok-vision'
-};
-const XAI_API_KEY = process.env.XAI_API_KEY;
-console.log('API Key cargada:', XAI_API_KEY ? 'SÍ ✓' : 'NO ✗');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Lee la API key de la variable de entorno
+const XAI_API_KEY = process.env.XAI_API_KEY;
+console.log('API Key cargada:', XAI_API_KEY ? 'SÍ ✓' : 'NO ✗');
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Multer para archivos en memoria (no se guardan en disco)
+// Multer para archivos en memoria
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB por archivo
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['.txt', '.md', '.json', '.csv', '.pdf'];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -32,12 +28,10 @@ const upload = multer({
   }
 });
 
-// Proxy hacia la API de xAI para no exponer la API key en el frontend
-// El frontend puede enviar la key en el header Authorization
+// Proxy hacia xAI usando la key del servidor
 app.post('/api/chat', async (req, res) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'API key requerida' });
+  if (!XAI_API_KEY) {
+    return res.status(500).json({ error: 'API key no configurada en el servidor' });
   }
 
   try {
@@ -45,7 +39,7 @@ app.post('/api/chat', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader
+        'Authorization': `Bearer ${XAI_API_KEY}`
       },
       body: JSON.stringify(req.body)
     });
@@ -63,7 +57,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// Upload de archivos - devuelve el texto extraído
+// Upload de archivos
 app.post('/api/upload', upload.array('files', 10), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ error: 'No se recibieron archivos' });
@@ -78,7 +72,7 @@ app.post('/api/upload', upload.array('files', 10), (req, res) => {
   res.json({ files: result });
 });
 
-// Health check para Railway
+// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
