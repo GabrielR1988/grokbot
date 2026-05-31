@@ -1,6 +1,12 @@
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
+const map = {
+  'grok-4-1-fast':      'model-grok-41fast',
+  'grok-4-3':           'model-grok-43',
+  'grok-4-20':          'model-grok-420',
+  'grok-2-vision-1212': 'model-grok-vision'
+};
 
 const app = express();
 const PORT = process.env.PORT || 3000;
