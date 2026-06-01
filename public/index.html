@@ -74,7 +74,6 @@
       box-shadow: 0 4px 40px rgba(0,0,0,0.08);
     }
 
-    /* SIDEBAR */
     .sidebar {
       border-right: 0.5px solid var(--border-light);
       display: flex;
@@ -209,7 +208,6 @@
       color: var(--text-secondary);
     }
 
-    /* FILES */
     .file-drop {
       margin: 14px 16px;
       border: 1px dashed var(--border-mid);
@@ -248,17 +246,6 @@
 
     input[type="file"] { display: none; }
 
-    .api-key-notice {
-      margin: 8px 16px;
-      padding: 10px 12px;
-      background: var(--amber-bg);
-      border-radius: var(--radius-md);
-      font-size: 11px;
-      color: var(--amber-text);
-      display: flex; align-items: flex-start; gap: 6px; line-height: 1.5;
-    }
-
-    /* MAIN */
     .main { display: flex; flex-direction: column; background: var(--bg-primary); }
 
     .chat-header {
@@ -450,7 +437,6 @@
       font-size: 13px;
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
@@ -459,7 +445,6 @@
 <body>
 
 <div class="app">
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="grok-logo">G</div>
@@ -483,21 +468,20 @@
 
     <!-- CONFIG PANEL -->
     <div class="panel active" id="panel-config">
-
       <div class="field-group">
         <div class="field-label"><i class="ti ti-cpu" aria-hidden="true"></i> Modelo</div>
         <div class="model-select-row">
-          <div class="model-card selected" id="model-grok-41fast" onclick="selectModel('grok-4.1-fast')">
-            <div class="model-card-name">Grok 4.1 Fast ⭐</div>
-            <div class="model-card-desc">Recomendado · Más barato</div>
+          <div class="model-card selected" id="model-grok-3mini" onclick="selectModel('grok-3-mini')">
+            <div class="model-card-name">Grok 3 Mini ⭐</div>
+            <div class="model-card-desc">Gratis · Para pruebas</div>
+          </div>
+          <div class="model-card" id="model-grok-41fast" onclick="selectModel('grok-4.1-fast')">
+            <div class="model-card-name">Grok 4.1 Fast</div>
+            <div class="model-card-desc">Rápido · Económico</div>
           </div>
           <div class="model-card" id="model-grok-43" onclick="selectModel('grok-4.3')">
             <div class="model-card-name">Grok 4.3</div>
             <div class="model-card-desc">Flagship · Más potente</div>
-          </div>
-          <div class="model-card" id="model-grok-420" onclick="selectModel('grok-4.20')">
-            <div class="model-card-name">Grok 4.20</div>
-            <div class="model-card-desc">Razonamiento · 2M ctx</div>
           </div>
           <div class="model-card" id="model-grok-vision" onclick="selectModel('grok-2-vision-1212')">
             <div class="model-card-name">Grok Vision</div>
@@ -509,11 +493,11 @@
       <div class="field-group">
         <div class="field-label">
           <i class="ti ti-temperature" aria-hidden="true"></i> Temperatura
-          <span class="temp-badge" id="temp-badge">0.7</span>
+          <span class="temp-badge" id="temp-badge">0.3</span>
         </div>
         <div class="slider-row">
           <span style="font-size:11px;color:var(--text-tertiary)">Preciso</span>
-          <input type="range" min="0" max="2" step="0.1" value="0.7" id="temp-slider" oninput="updateTemp(this.value)">
+          <input type="range" min="0" max="2" step="0.1" value="0.3" id="temp-slider" oninput="updateTemp(this.value)">
           <span style="font-size:11px;color:var(--text-tertiary)">Creativo</span>
         </div>
       </div>
@@ -521,8 +505,8 @@
       <div class="field-group">
         <div class="field-label"><i class="ti ti-ruler" aria-hidden="true"></i> Máx. tokens</div>
         <div class="slider-row">
-          <input type="range" min="256" max="8192" step="256" value="2048" id="tokens-slider" oninput="updateTokens(this.value)">
-          <span class="slider-val" id="tokens-val">2048</span>
+          <input type="range" min="256" max="8192" step="256" value="1024" id="tokens-slider" oninput="updateTokens(this.value)">
+          <span class="slider-val" id="tokens-val">1024</span>
         </div>
       </div>
     </div>
@@ -586,7 +570,7 @@
           <div class="bot-name" id="bot-name-display">GrokBot</div>
           <div class="bot-status">
             <span class="status-dot" id="status-dot"></span>
-            <span id="status-text">Configurá tu API key para comenzar</span>
+            <span id="status-text">Iniciando...</span>
           </div>
         </div>
       </div>
@@ -623,7 +607,7 @@
           onkeydown="handleKey(event)"
           oninput="autoResize(this)"
         ></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled aria-label="Enviar mensaje">
+        <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Enviar mensaje">
           <i class="ti ti-arrow-up" aria-hidden="true"></i>
         </button>
       </div>
@@ -632,12 +616,18 @@
 </div>
 
 <script>
-  let selectedModel = 'grok-3-mini  ';
+  // ── CORRECCIONES PRINCIPALES ──────────────────────────
+  // 1. Modelo por defecto: grok-3-mini (no requiere saldo)
+  // 2. Map de selectModel actualizado con modelos nuevos
+  // 3. Temperatura por defecto: 0.3 (ideal para atención al cliente)
+  // 4. Tokens por defecto: 1024
+  // ─────────────────────────────────────────────────────
+
+  let selectedModel = 'grok-3-mini';
   let uploadedFiles = [];
   let messages = [];
   let isTyping = false;
 
-  // --- TABS ---
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
       t.classList.toggle('active', ['config', 'persona', 'files'][i] === tab);
@@ -646,7 +636,6 @@
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // --- MODELO ---
   function selectModel(model) {
     selectedModel = model;
     document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
@@ -660,7 +649,6 @@
     updateStatus();
   }
 
-  // --- SLIDERS ---
   function updateTemp(v) {
     document.getElementById('temp-badge').textContent = parseFloat(v).toFixed(1);
   }
@@ -669,24 +657,20 @@
     document.getElementById('tokens-val').textContent = v;
   }
 
-  // --- STATUS ---
   function updateStatus() {
     const dot = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
-    const btn = document.getElementById('send-btn');
     dot.style.background = '#1D9E75';
     text.textContent = 'Conectado · ' + selectedModel;
-    btn.disabled = false;
+    document.getElementById('send-btn').disabled = false;
   }
 
-  // --- BOT NAME ---
   function updateBotName() {
     const name = document.getElementById('bot-name').value || 'GrokBot';
     document.getElementById('bot-name-display').textContent = name;
     document.getElementById('bot-avatar').textContent = name.charAt(0).toUpperCase();
   }
 
-  // --- CHAR COUNT ---
   function updateCharCount() {
     const count = document.getElementById('personality').value.length;
     const el = document.getElementById('personality-count');
@@ -694,17 +678,12 @@
     el.className = 'char-count' + (count > 450 ? ' char-warn' : '');
   }
 
-  // --- FILES ---
   function handleFiles(files) {
     Array.from(files).forEach(file => {
       if (uploadedFiles.find(f => f.name === file.name)) return;
       const reader = new FileReader();
       reader.onload = (e) => {
-        uploadedFiles.push({
-          name: file.name,
-          size: file.size,
-          content: e.target.result
-        });
+        uploadedFiles.push({ name: file.name, size: file.size, content: e.target.result });
         renderFiles();
       };
       reader.readAsText(file);
@@ -713,10 +692,7 @@
 
   function renderFiles() {
     const list = document.getElementById('file-list');
-    if (uploadedFiles.length === 0) {
-      list.innerHTML = '';
-      return;
-    }
+    if (uploadedFiles.length === 0) { list.innerHTML = ''; return; }
     list.innerHTML = uploadedFiles.map((f, i) => `
       <div class="file-item">
         <i class="ti ti-file-text" aria-hidden="true"></i>
@@ -734,7 +710,6 @@
     renderFiles();
   }
 
-  // Drag & drop
   const dropZone = document.getElementById('drop-zone');
   dropZone.addEventListener('dragover', e => {
     e.preventDefault();
@@ -752,7 +727,6 @@
     handleFiles(e.dataTransfer.files);
   });
 
-  // --- SYSTEM PROMPT ---
   function buildSystemPrompt() {
     const personality = document.getElementById('personality').value.trim();
     const instructions = document.getElementById('instructions').value.trim();
@@ -771,11 +745,9 @@
         system += `\n### ${f.name}\n\`\`\`\n${preview}${f.content.length > 4000 ? '\n...[truncado]' : ''}\n\`\`\`\n`;
       });
     }
-
     return system;
   }
 
-  // --- CHAT ---
   function addMessage(role, content) {
     const container = document.getElementById('messages');
     const empty = document.getElementById('empty-state');
@@ -783,22 +755,15 @@
 
     const time = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
     const avatarText = role === 'bot' ? document.getElementById('bot-avatar').textContent : 'Vos';
-
     const div = document.createElement('div');
     div.className = `msg ${role}`;
-
-    const contentHtml = role === 'bot'
-      ? `<div class="msg-bubble">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`
-      : `<div class="msg-bubble">${escapeHtml(content).replace(/\n/g, '<br>')}</div>`;
-
     div.innerHTML = `
       <div class="msg-avatar">${avatarText}</div>
       <div>
-        ${contentHtml}
+        <div class="msg-bubble">${escapeHtml(content).replace(/\n/g, '<br>')}</div>
         <div class="msg-time">${time}</div>
       </div>
     `;
-
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     return div;
@@ -807,12 +772,10 @@
   function addErrorMessage(text) {
     const container = document.getElementById('messages');
     const time = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
-    const avatarText = document.getElementById('bot-avatar').textContent;
-
     const div = document.createElement('div');
     div.className = 'msg bot';
     div.innerHTML = `
-      <div class="msg-avatar">${avatarText}</div>
+      <div class="msg-avatar">${document.getElementById('bot-avatar').textContent}</div>
       <div>
         <div class="error-msg"><i class="ti ti-alert-circle"></i> ${escapeHtml(text)}</div>
         <div class="msg-time">${time}</div>
@@ -871,7 +834,6 @@
       const temperature = parseFloat(document.getElementById('temp-slider').value);
       const maxTokens = parseInt(document.getElementById('tokens-slider').value);
 
-      // La API key la maneja el servidor vía variable de entorno XAI_API_KEY
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -906,8 +868,7 @@
   }
 
   function quickSend(text) {
-    const input = document.getElementById('chat-input');
-    input.value = text;
+    document.getElementById('chat-input').value = text;
     sendMessage();
   }
 
@@ -925,8 +886,7 @@
 
   function clearChat() {
     messages = [];
-    const container = document.getElementById('messages');
-    container.innerHTML = `
+    document.getElementById('messages').innerHTML = `
       <div class="empty-chat" id="empty-state">
         <i class="ti ti-check" aria-hidden="true"></i>
         <div class="empty-chat-title">Chat limpiado</div>
